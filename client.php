@@ -58,7 +58,7 @@ $worker->onWorkerStart = function (): void {
                 stream_set_blocking(STDIN, false);
                 system("stty -icanon -echo");
                 _log('[CHAT STARTED]');
-                Timer::add(0.05, function () use ($tcpConnection, &$inputLine, &$messageBuffer, &$blocking): void {
+                Timer::add(0.01, function () use ($tcpConnection, &$inputLine, &$messageBuffer, &$blocking): void {
                     $msgBuffArr = explode("\n", $messageBuffer);
                     if (count($msgBuffArr) > 1) {
                         $starting = 0;
@@ -70,11 +70,6 @@ $worker->onWorkerStart = function (): void {
                                 continue;
                             }
 
-                            if ($blocking) {
-                                echo "\n";
-                                $blocking = false;
-                            }
-
                             if ($index === $starting) {
                                 echo "\r" . str_repeat(' ', strlen($inputLine) + 5);
                                 echo  "\r" . $message ;
@@ -84,10 +79,7 @@ $worker->onWorkerStart = function (): void {
                             echo  "\n" . $message ;
                         }
                         $messageBuffer = '';
-                        echo "\n";
-                        if (!empty($inputLine)) {
-                            echo "You: " . $inputLine;
-                        }
+                        echo "\nYou: " . $inputLine;
                         return;
                     }
 
@@ -119,11 +111,6 @@ $worker->onWorkerStart = function (): void {
                     }
 
                     $inputLine = $processedInput;
-
-                    if ($blocking) {
-                        echo "\n";
-                        $blocking = false;
-                    }
                     echo "\r" . str_repeat(" ", $cc + 5 - $backspaceCount);
                     echo "\rYou: " . $inputLine;
                 });
